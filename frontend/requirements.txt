@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+websockets
+pillow
+opencv-python
+numpy
+adb-shell
+asyncio
+python-dotenv
+pydantic
