@@ -65,7 +65,7 @@ def load_card_templates():
     try:
         if os.path.exists(CARD_TEMPLATE_DIR):
             for file in os.listdir(CARD_TEMPLATE_DIR):
-                if file.endswith('.png'):
+                if file.endswith('.png') and '_' not in file and 'backFace' not in file:
                     path = os.path.join(CARD_TEMPLATE_DIR, file)
                     template = cv2.imread(path)
                     if template is not None:
