@@ -9,7 +9,7 @@ const Label: React.FC<{ title: string; value?: React.ReactNode }> = ({ title, va
 );
 
 export default function Dashboard() {
-  const { payload, status } = useAgenticSeek();
+  const { payload, status, sendCommand } = useAgenticSeek();
 
   const frame = payload?.framePreview;
   const handCards = payload?.handCards?.cards ?? [];
@@ -48,10 +48,10 @@ export default function Dashboard() {
 
         {/* Actions */}
         <div className="action-buttons">
-          <button className="action-btn" onClick={() => fetch("/api/drop")}>Drop Card</button>
-          <button className="action-btn" onClick={() => fetch("/api/pick_discard")}>Pick from Discard</button>
-          <button className="action-btn" onClick={() => fetch("/api/pick_deck")}>Pick from Deck</button>
-          <button className="action-btn" onClick={() => fetch("/api/auto_pilot")}>Auto Pilot</button>
+          <button className="action-btn" onClick={() => sendCommand("drop_card")}>Drop Card</button>
+          <button className="action-btn" onClick={() => sendCommand("pick_from_discard")}>Pick from Discard</button>
+          <button className="action-btn" onClick={() => sendCommand("pick_from_deck")}>Pick from Deck</button>
+          <button className="action-btn" onClick={() => sendCommand("auto_pilot")}>Auto Pilot</button>
         </div>
 
         {/* Live Frame */}

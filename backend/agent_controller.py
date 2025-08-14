@@ -1,6 +1,7 @@
 import json
 import time
 from typing import Dict, List, Any
+from card_utils import is_pure_sequence, rank_to_value
 
 class AgentController:
     def __init__(self):
@@ -48,7 +49,7 @@ class AgentController:
             completion_percentage = (cards_in_melds / total_cards * 100) if total_cards > 0 else 0
             
             # Check for pure sequence
-            has_pure_sequence = any(self._is_pure_sequence(meld) for meld in melds)
+            has_pure_sequence = any(is_pure_sequence(meld) for meld in melds)
             
             # Decision logic
             if completion_percentage >= 80 and has_pure_sequence and len(melds) >= 2:
@@ -103,40 +104,6 @@ class AgentController:
                 'timestamp': int(time.time() * 1000)
             }
     
-    def _is_pure_sequence(self, meld: List[str]) -> bool:
-        """Check if meld is a pure sequence (no jokers)"""
-        if len(meld) < 3:
-            return False
-        
-        # Extract suits and ranks
-        suits = [card[-1] for card in meld]
-        ranks = [card[:-1] for card in meld]
-        
-        # All cards must be same suit
-        if len(set(suits)) != 1:
-            return False
-        
-        # Convert ranks to numbers for sequence check
-        rank_values = []
-        for rank in ranks:
-            if rank == 'A':
-                rank_values.append(1)
-            elif rank in ['J', 'Q', 'K']:
-                rank_values.append({'J': 11, 'Q': 12, 'K': 13}[rank])
-            else:
-                try:
-                    rank_values.append(int(rank))
-                except:
-                    return False
-        
-        # Check if consecutive
-        rank_values.sort()
-        for i in range(1, len(rank_values)):
-            if rank_values[i] != rank_values[i-1] + 1:
-                return False
-        
-        return True
-    
     def _card_helps_melds(self, card: str, hand_cards: List[str]) -> bool:
         """Check if a card would help complete any potential melds"""
         if not card or len(card) < 2:
@@ -155,8 +122,8 @@ class AgentController:
             # Same suit - check for sequence potential
             if card_suit == hand_suit:
                 try:
-                    card_val = self._rank_to_value(card_rank)
-                    hand_val = self._rank_to_value(hand_rank)
+                    card_val = rank_to_value(card_rank)
+                    hand_val = rank_to_value(hand_rank)
                     if abs(card_val - hand_val) <= 2:  # Within 2 ranks
                         return True
                 except:
@@ -167,15 +134,6 @@ class AgentController:
                 return True
         
         return False
-    
-    def _rank_to_value(self, rank: str) -> int:
-        """Convert card rank to numeric value"""
-        if rank == 'A':
-            return 1
-        elif rank in ['J', 'Q', 'K']:
-            return {'J': 11, 'Q': 12, 'K': 13}[rank]
-        else:
-            return int(rank)
     
     def get_game_statistics(self) -> Dict[str, Any]:
         """Get current game statistics"""

@@ -2,6 +2,7 @@ import json
 import time
 from typing import List, Dict, Any
 from collections import defaultdict
+from card_utils import detect_sets, rank_to_value
 
 class StrategyEmitter:
     def __init__(self):
@@ -32,7 +33,7 @@ class StrategyEmitter:
                 cards_by_rank[card['rank']].append(card)
         
         sequences = self.detect_sequences(cards_by_suit)
-        sets = self.detect_sets(cards_by_rank)
+        sets = detect_sets(hand_cards)
 
         used_cards = set()
         for group in sequences + sets:
@@ -61,11 +62,11 @@ class StrategyEmitter:
         sequences = []
         for suit, cards in cards_by_suit.items():
             if len(cards) >= 3:
-                sorted_cards = sorted(cards, key=lambda c: self.get_rank_value(c['rank']))
+                sorted_cards = sorted(cards, key=lambda c: rank_to_value(c['rank']))
                 current = [sorted_cards[0]]
                 for i in range(1, len(sorted_cards)):
-                    cur_val = self.get_rank_value(sorted_cards[i]['rank'])
-                    prev_val = self.get_rank_value(current[-1]['rank'])
+                    cur_val = rank_to_value(sorted_cards[i]['rank'])
+                    prev_val = rank_to_value(current[-1]['rank'])
                     if cur_val == prev_val + 1:
                         current.append(sorted_cards[i])
                     else:
@@ -87,24 +88,6 @@ class StrategyEmitter:
                         'length': len(current)
                     })
         return sequences
-
-    def detect_sets(self, cards_by_rank: Dict) -> List[Dict]:
-        sets = []
-        for rank, cards in cards_by_rank.items():
-            suits = {card['suit'] for card in cards}
-            if len(suits) >= 3:
-                sets.append({
-                    'cards': cards[:4],
-                    'isValid': True,
-                    'rank': rank,
-                    'length': min(len(cards), 4)
-                })
-        return sets
-
-    def get_rank_value(self, rank: str) -> int:
-        table = {'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7,
-                 '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13}
-        return table.get(rank, 0)
 
     def generate_strategic_suggestions(self, hand_cards: List[str], analysis: Dict,
                                        discarded: str = None, joker: str = None) -> List[str]:

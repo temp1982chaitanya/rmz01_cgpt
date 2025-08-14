@@ -9,3 +9,4 @@ asyncio
 python-dotenv
 pydantic
 requests
+pytesseract

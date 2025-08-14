@@ -1,4 +1,4 @@
-import { useAgenticSeek } from "../hooks/useAgenticSeek";
+import { useState, useRef, useEffect } from "react";
 
 const WS_URL = 'ws://localhost:8787';
 
